@@ -1,1 +1,12 @@
+BASIC OUTLINE
+Ask the user what their most enjoyable recent book they read was
+	 OPTIONAL Ask if user has a GoodReads ID. Enter userID or “quit”
+	 OPTIONAL IF user ID is entered, use review.list API (shelf, read). Then go to step 3
+	 OPTIONAL  Ask for the user’s mood via text input
+	 Use input against Microsoft Azure sentiment analysis tool to get sentiment for user
+	 Search for book, choose first result in search
+	 Find “Readers Also Enjoyed” key from that book and grab the 3 book names linked there, and provide their respective ratings
+	 OPTIONAL – remove books already in read shelf for goodreads user
 
+fav_book = input("What is the most recently read book that you've enjoyed? ")
+goodreads_id = input("Do you have a GoodReads ID? ")
