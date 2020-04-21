@@ -1,1 +1,32 @@
+JSON Example
+import json
+    "president": {
+        "name": "Zaphod Beeblebrox",
+        "species": "Betelgeusian"
+    }
+}
+with open("data_file.json", "w") as write_file:
+      json.dump(data, write_file)
+      
+API Example
+parameters = {"lat": 37.78, "lon": -122.41}
+response = requests.get("http://api.open-notify.org/iss-pass.json", params=parameters)
+data = response.json()
+print(type(data))
+print(data)
 
+SENTIMENT ANALYSIS Example
+all_words = nltk.FreqDist(w.lower() for w in movie_reviews.words())
+word_features = list(all_words)[:2000]
+
+def document_features(document):
+    document_words = set(document)
+    features = {}
+    for word in word_features:
+        features['contains({})'.format(word)] = (word in document_words)
+    return features
+
+BOOK CROSSING/DATA SET Example
+import pandas
+books = pd.read_csv('books.csv', sep=';', error_bad_lines=false, encoding='latin-1')
+book.columns = ['ISBN', 'Booktitle', "Bookauthor", 'yearofPublication', 'publisher, 'imageUrlS, imageUrlm]
