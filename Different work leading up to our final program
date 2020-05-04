@@ -1,0 +1,33 @@
+DRAFT WORK
+
+import requests
+import json
+key = "W6xebHZh54bUGgMJCyWxQ"
+endpoint = "https://www.goodreads.com/"
+fav_book = input("What is the most recently read book that you've enjoyed? ")
+search = requests.get(f"{endpoint}search.xml?key={key}&q={fav_book}")
+print(search.text)
+
+import requests
+import json
+import xml.etree.ElementTree as etree
+key = "W6xebHZh54bUGgMJCyWxQ"
+endpoint = "https://www.goodreads.com/" 
+
+ 
+
+response = requests.get(f"{endpoint}search.xml?key={key}&q=Ender%27s+Game")
+xml_str = response.content
+tree = etree.fromstring(xml_str)
+
+ 
+
+ 
+
+ 
+
+for work in tree[1]:
+    title = str(work.text)
+    print(title)
+    break
+    
