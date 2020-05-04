@@ -20,7 +20,27 @@ response = requests.get(f"{endpoint}search.xml?key={key}&q=Ender%27s+Game")
 xml_str = response.content
 tree = etree.fromstring(xml_str)
 
- 
+ import requests
+import json
+import pandas as pd
+import xml.etree.ElementTree as etree
+
+key = "W6xebHZh54bUGgMJCyWxQ"
+endpoint = "https://www.goodreads.com/"
+
+#search title using an example instead of input
+xml_str = requests.get(f"{endpoint}search.xml?key={key}&q=Ender%27s+Game")
+tree = etree.fromstring(xml_str)
+root = tree.getroot()
+columns = ["title", "author"]
+dataframe = pd.DataFrame(columns = columns)
+
+for i in tree.iter(tag='data'):
+    df = df.append(
+        pd.Series([i.get('title'), i.get('author')], index=columns),
+        ignore_index=True)
+
+df.head()
 
  
 
