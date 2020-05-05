@@ -1,0 +1,159 @@
+####not CODE BASIC OUTLINE Ask the user what their most enjoyable recent book they read was OPTIONAL Ask if user has a GoodReads ID. 
+#Enter userID or “quit” OPTIONAL IF user ID is entered, use review.list API (shelf, read). 
+#Then go to step 3 
+#OPTIONAL Ask for the user’s mood via text input Use input against Microsoft Azure sentiment analysis tool to get sentiment for user 
+#Search for book, choose first result in search Find “Readers Also Enjoyed” key from that book and grab the 3 book names linked there, and provide their respective ratings 
+#OPTIONAL – remove books already in read shelf for goodreads user
+
+#fav_book = input("What is the most recently read book that you've enjoyed? ") goodreads_id = input("Do you have a GoodReads ID? ")
+
+#key: W6xebHZh54bUGgMJCyWxQ secret: h0irClMabUfqwqg14Mh4RO3Y5ewEcjAFXSc1NJwGo
+#########HOW TO PANDA XML
+import requests
+import json
+import pandas as pd
+import xml.etree.ElementTree as etree
+
+key = "W6xebHZh54bUGgMJCyWxQ"
+endpoint = "https://www.goodreads.com/"
+
+#search title using an example instead of input
+xml_str = requests.get(f"{endpoint}search.xml?key={key}&q=Ender%27s+Game")
+tree = etree.fromstring(xml_str)
+root = tree.getroot()
+columns = ["title", "author"]
+dataframe = pd.DataFrame(columns = columns)
+
+for i in tree.iter(tag='data'):
+    df = df.append(
+        pd.Series([i.get('title'), i.get('author')], index=columns),
+        ignore_index=True)
+
+df.head()
+###
+###Working title search
+fav_book = input("What is the most recently read book that you've enjoyed? ")
+search = requests.get(f"{endpoint}search.xml?key={key}&q={fav_book}")
+print(search.text)
+
+
+## attempted book recommendations via API - no luck
+import requests
+import json
+
+
+key = "W6xebHZh54bUGgMJCyWxQ"
+endpoint = "https://www.goodreads.com/"
+
+#search title using an example instead of input
+sim_str = requests.get(f"{endpoint}books/similar.xml?key={key}&q=21512735-the-hit")
+print(sim_str.text)
+
+
+
+
+
+#######Trying to pull XML data from recommendations webpage
+import requests
+import json
+import pandas as pd
+import xml.etree.ElementTree as etree
+
+key = "W6xebHZh54bUGgMJCyWxQ"
+endpoint = "https://www.goodreads.com/"
+
+#searching title using an example instead of input
+response = requests.get(f"{endpoint}search.xml?key={key}&q=Ender%27s+Game")
+xml_str = response.content
+tree = etree.fromstring(xml_str)
+#etree.dump(tree)
+testid = tree.find('title>')
+#oot = etree.parse(tree)
+#testid = root['work'][0]['title']
+#print(response.text)
+print(testid)
+
+
+#######Working export of title from user search
+import requests
+import json
+import xml.etree.ElementTree as etree
+key = "W6xebHZh54bUGgMJCyWxQ"
+endpoint = "https://www.goodreads.com/" 
+
+
+response = requests.get(f"{endpoint}search.xml?key={key}&q=Ender%27s+Game")
+xml_str = response.content
+tree = etree.fromstring(xml_str)
+#print(response.text)
+
+for work in tree[1]:
+    title = str(work.text)
+    break
+    
+print(title)
+
+###Trying API "lists" feature to get recommendations - no luck
+key = "W6xebHZh54bUGgMJCyWxQ"
+endpoint = "https://www.goodreads.com/"
+listopia = requests.get(f"{endpoint}book/BOOK_ID.xml?key={key}&q=21512735")
+print(listopia)
+
+######Scraping webpage with selenium - didn't like webdriver usage in JupyterHub
+#prerequisites
+!pip install selenium
+!pip install beautifulsoup4
+from selenium import webdriver
+from bs4 import BeautifulSoup
+import pandas as pd
+from urllib.request import urlopen
+#prerequisites
+!pip install selenium
+!pip install beautifulsoup4
+from selenium import webdriver
+from bs4 import BeautifulSoup
+import pandas as pd
+from urllib.request import urlopen
+
+###FIGURED IT OUT - using URLOPEN to pull xml data from webpage
+#create empty lists for recommendations
+rec_titles=[]
+rec_authors=[] 
+rec_ratings=[]
+url='http://www.goodreads.com/book/similar/21512735-the-hit'
+html = urlopen(url)
+soup = BeautifulSoup(html, 'lxml')
+
+
+
+searchtitle = soup.title
+searchtitle = str(searchtitle)
+cleansearchtitle = BeautifulSoup(searchtitle, "lxml").get_text()
+
+print("You are looking for:",cleansearchtitle)
+
+
+for a in soup.findAll('div', attrs={'class':'responsiveBook'}):
+    title=str(a.find('span', attrs={'itemprop':'name'}))
+    cleantitle = BeautifulSoup(title, "lxml").get_text()
+    rec_titles.append(cleantitle)
+    author=str(a.find('span', attrs={'itemprop':'author'}))
+    cleanauthor = BeautifulSoup(author, "lxml").get_text()
+    rec_authors.append(cleanauthor)
+
+    print
+    
+    
+  ##Testing loop program
+  for a in soup.findAll('div', attrs={'class':'responsiveBook'}):
+    print(a)
+    title=a.find('span', attrs={'itemprop':'name'})
+    author=a.find('span', attrs={'itemprop':'author'})
+    rating=a.find('div', attrs={'class':'communityRating'}) #needs more code to catch arialabel
+    rec_titles.append(title.text)
+    rec_authors.append(author.text)
+    rec_rating.append(rating.text)
+    
+df = pd.DataFrame({'Title':rec_titles,'Author':rec_authors,'Rating':rec_ratings}) 
+df.to_csv('recommendations.csv', index=False, encoding='utf-8')
+df
