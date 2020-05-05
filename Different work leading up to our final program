@@ -51,3 +51,68 @@ for work in tree[1]:
     print(title)
     break
     
+#prerequisites
+!pip install beautifulsoup4
+from bs4 import BeautifulSoup
+import pandas as pd
+from urllib.request import urlopen
+import requests
+import xml.etree.ElementTree as etree
+#GoodreadsAPI key
+key = "W6xebHZh54bUGgMJCyWxQ"
+endpoint = "https://www.goodreads.com/"
+
+# Get input from the user, search the Goodreads API for the string and choose the first result.
+
+fav_book = input("What is the most recently read book that you've enjoyed? ")
+search = requests.get(f"{endpoint}search.xml?key={key}&q={fav_book}")
+xml_str = search.content
+pie = BeautifulSoup(xml_str, 'lxml-xml')
+result = pie.find('work')
+
+#we don't need this data to make an effective search. We just need the ID.
+#firsttitle = BeautifulSoup(str(result.find('title')),"lxml").get_text()
+#firstauthor = BeautifulSoup(str(result.find('name')),"lxml").get_text()
+firstid = BeautifulSoup(str(result.find('id')),"lxml").get_text()
+
+#create empty lists for the incoming recommendations
+rec_titles=[]
+rec_authors=[] 
+rec_ratings=[]
+
+#use the book ID gathered with the goodreads API to open the Goodreads 
+#recommendations page, which is not accesscible using the API.
+url=f'{endpoint}book/similar/{firstid}'
+html = urlopen(url)
+soup = BeautifulSoup(html, 'lxml')
+
+#Return the search to the user
+resulttitle = soup.title
+resulttitle = str(resulttitle)
+cleanresulttitle = BeautifulSoup(resulttitle, "lxml").get_text()
+
+print("You are looking for:",cleanresulttitle)
+
+#loop against results shown on webpage and add them to respective lists
+for a in soup.findAll('div', attrs={'class':'responsiveBook'}):
+#Titles
+    title=str(a.find('span', attrs={'itemprop':'name'}))
+    cleantitle = BeautifulSoup(title, "lxml").get_text()
+    rec_titles.append(cleantitle)
+#Authors
+    author=str(a.find('span', attrs={'itemprop':'author'}))
+    cleanauthor = BeautifulSoup(author, "lxml").get_text()
+    rec_authors.append(cleanauthor)
+#Ratings
+    rating=str(a.find('div', attrs={'class':'communityRating'})) #needs more code to catch arialabel
+    cleanrating = BeautifulSoup(rating, "lxml").get_text()
+    rec_ratings.append(cleanrating)
+
+#Create a dataframe and export to csv just in case!
+
+df = pd.DataFrame({'Title':rec_titles,'Author':rec_authors,'Rating':rec_ratings}) 
+df.to_csv('recommendations.csv', index=False, encoding='utf-8')
+
+#Display the final result
+print("Here are 5 recommendations you are sure to enjoy!")
+df[1:6]
